@@ -11,13 +11,12 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
-  String expression = ""; // Stores the input expression
-  String result = "0"; // Stores the result preview
-  String previousResult = ""; // Store the previous result
+  String expression = "";
+  String result = "0";
+  String previousResult = "";
 
-  // History list to store previous operations and results
   List<String> history = [];
-  bool showHistory = false; // Flag to toggle history display
+  bool showHistory = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             icon: Icon(showHistory ? Icons.history : Icons.history_toggle_off),
             onPressed: () {
               setState(() {
-                showHistory = !showHistory; // Toggle history view
+                showHistory = !showHistory;
               });
             },
           ),
@@ -40,7 +39,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         bottom: false,
         child: Column(
           children: [
-            // History view (shown when showHistory is true)
             if (showHistory) ...[
               Expanded(
                 child: ListView.builder(
@@ -50,18 +48,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       title: Text(history[index]),
                       onTap: () {
                         setState(() {
-                          // When a history entry is clicked, append it to the expression
                           expression += history[index].split("=")[0];
                         });
-                        Navigator.pop(context); // Close the history view
+                        Navigator.pop(context);
                       },
                     );
                   },
                 ),
               ),
             ],
-
-            // Display area for the expression and result (shown when showHistory is false)
             if (!showHistory) ...[
               Expanded(
                 child: SingleChildScrollView(
@@ -96,8 +91,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 ),
               ),
             ],
-
-            // Calculator buttons layout
             Wrap(
               children: Btn.buttonValues
                   .map(
@@ -117,12 +110,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  // Helper function to build buttons with dynamic styling
   Widget buildButton(String value) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Material(
-        color: getBtnColor(value), // Get the color for each button
+        color: getBtnColor(value),
         clipBehavior: Clip.hardEdge,
         shape: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.white24),
@@ -136,7 +128,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: isSpecialButton(value) ? 36 : 24,
-                color: getButtonTextColor(value), // Set text color dynamically
+                color: getButtonTextColor(value),
               ),
             ),
           ),
@@ -145,7 +137,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  // Helper function to check if the button is one of the special buttons
   bool isSpecialButton(String value) {
     return [
       Btn.add,
@@ -159,29 +150,27 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     ].contains(value);
   }
 
-  // Helper function to get the button's text color
   Color getButtonTextColor(String value) {
     if (value == Btn.del || value == Btn.clr) {
-      return Colors.red; // Del and Clr buttons text color is red
+      return Colors.red;
     }
     if (value == Btn.calculate) {
-      return Colors.white; // Calculate button text color is white
+      return Colors.white;
     }
     if (isSpecialButton(value)) {
-      return Colors.green; // Special buttons text color is green
+      return Colors.green;
     }
-    return Colors.black; // Default for numbers and operands is black
+    return Colors.black;
   }
 
-  // Helper function to get the button color based on its value
   Color getBtnColor(String value) {
     if (value == Btn.calculate) {
-      return Colors.green; // Color for the equal button
+      return Colors.green;
     }
     if (value == Btn.del || value == Btn.clr) {
-      return const Color(0xFFEEEEF0); // Color for delete and clear buttons
+      return const Color(0xFFEEEEF0);
     }
-    // Color for operand buttons like +, -, *, /
+
     if ([
       Btn.add,
       Btn.subtract,
@@ -195,37 +184,31 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     ].contains(value)) {
       return const Color(0xFFEEEEF0);
     }
-    // Default color for numbers and other buttons
+
     return const Color(0xFFEEEEF0);
   }
 
-  // Handle button press
   void onBtnTap(String value) {
     setState(() {
-      // Check if the result is already displayed, and if the value is a number
       if (result != "0" &&
           value != Btn.del &&
           value != Btn.clr &&
           !isOperator(value)) {
-        // If a number is pressed after a result, reset and start a new calculation
-        expression = value; // Start the new calculation with the pressed number
-        result = "0"; // Reset the result
-        previousResult = ""; // Clear the previous result
+        expression = value;
+        result = "0";
+        previousResult = "";
         return;
       }
 
-      // Prevent consecutive operand inputs and ensure operand can replace the previous one
       if (isOperator(value) &&
           isOperator(
               expression.isEmpty ? '' : expression[expression.length - 1])) {
-        // If operand is pressed twice, replace the last one
         expression = expression.substring(0, expression.length - 1) + value;
         return;
       }
 
-      // Prevent operand entry before the first number
       if (isOperator(value) && expression.isEmpty) {
-        return; // Do nothing if the first input is an operand
+        return;
       }
 
       if (value == Btn.del) {
@@ -235,7 +218,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       } else if (value == Btn.calculate) {
         calculate();
       } else if (value == Btn.square) {
-        appendValue("√("); // Add √( for square root
+        appendValue("√(");
       } else if (value == Btn.minors) {
         toggleSign();
       } else if (value == Btn.openbracket || value == Btn.closebracket) {
@@ -243,15 +226,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       } else {
         appendValue(value);
       }
-
-      // Update result preview after each input or operand
     });
   }
 
   void clearAll() {
     setState(() {
       expression = "";
-      result = "0"; // Reset result to "0"
+      result = "0";
       previousResult = "";
     });
   }
@@ -267,11 +248,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       expression = "";
     }
 
-    // Append the value to the expression
     expression += value;
   }
 
-  // Function to check if a character is an operator
   bool isOperator(String value) {
     return value == Btn.add ||
         value == Btn.subtract ||
@@ -279,16 +258,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         value == Btn.divide;
   }
 
-  // Helper function to format the result
   String _formatResult(double value) {
     if (value == value.toInt()) {
-      // If the value is a whole number, return it as an integer (no decimals)
       return value.toInt().toString();
     } else {
-      // If the value is a decimal, return it formatted to 10 decimal places
       String formatted = value.toStringAsFixed(10);
 
-      // Remove trailing zeros after decimal
       if (formatted.contains('.') && formatted.endsWith('0')) {
         formatted = formatted.replaceAll(RegExp(r'([.]*0)(?!.*\d)'), '');
       }
@@ -296,7 +271,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     }
   }
 
-  // Calculation function
   void calculate() {
     if (expression.isEmpty) return;
 
@@ -326,7 +300,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         result = _formatResult(eval);
       }
 
-      // Save the expression and result to history
       history.insert(0, "$expression = $result");
 
       previousResult = result;
@@ -341,7 +314,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   String handleAdjacentParentheses(String expression) {
     String result = expression;
 
-    // Handling cases where parentheses are adjacent to numbers
     result = result.replaceAllMapped(RegExp(r'(\d)(\()'), (match) {
       return '${match.group(1)}*${match.group(2)}';
     });
